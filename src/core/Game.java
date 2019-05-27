@@ -1,5 +1,9 @@
 package core;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+
 public class Game
 {
     private char board[][];
@@ -54,4 +58,66 @@ public class Game
     {
         return board;
     }
+
+    public ArrayList<Point> highlightMoves(JButton[][] board, Piece selectedPiece)
+    {
+        ArrayList<Point> potentialMoveList = new ArrayList<>();
+
+        int currentPlayer = selectedPiece.getPlayerID();
+        int curX, curY;
+
+        switch (selectedPiece.getPieceRank())
+        {
+            case 'P':
+
+                for (int i = 0; i < Constants.PAWN_HORIZONTAL.length; i++)
+                {
+                    curX = selectedPiece.getxLocation() + Constants.PAWN_HORIZONTAL[i];
+                    curY = selectedPiece.getyLocation() + Constants.PAWN_VERTICAL[i];
+
+                    if (inBounds(curX, curY) && spotCheck(currentPlayer, board[curY][curX]))
+                    {
+                        potentialMoveList.add(new Point(curX, curY));
+                    }
+                }
+                break;
+
+            case 'K':
+                break;
+            case 'N':
+                break;
+            case 'Q':
+                break;
+            case 'R':
+                break;
+            case 'B':
+                break;
+        }
+        return potentialMoveList;
+    }
+
+    private boolean inBounds(int x, int y)
+    {
+        return x > -1 && x < 7 && y > -1 && y < 7;
+    }
+
+    private boolean spotCheck(int currentPlayer, JButton potentialMoves)
+    {
+        return containsEnemyPiece(currentPlayer, potentialMoves) || containsNoPiece(potentialMoves);
+    }
+
+    private boolean containsEnemyPiece(int currentPlayer, JButton potentialMove)
+    {
+        Piece checkPiece = (Piece)potentialMove.getClientProperty("piece");
+
+        return checkPiece.getPlayerID() != currentPlayer;
+    }
+
+    public boolean containsNoPiece(JButton potentialMove)
+    {
+        Piece checkPiece = (Piece)potentialMove.getClientProperty("piece");
+
+        return checkPiece.getPlayerID() == Constants.EMPTY_SPOT;
+    }
+
 }

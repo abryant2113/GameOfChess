@@ -1,19 +1,24 @@
 package UI;
 
+import core.Constants;
 import core.Game;
+import core.Piece;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 class BoardGUI extends JPanel
 {
     private JButton[][] board;
+    private JButton selectedButton;
     private Game game;
 
     BoardGUI(Game game)
     {
+        selectedButton = null;
         this.game = game;
         initComponents();
     }
@@ -55,8 +60,19 @@ class BoardGUI extends JPanel
                    chooseImage(board[i][j], gameState[i][j]);
                 }
 
-                board[i][j].putClientProperty("row", i);
-                board[i][j].putClientProperty("col", j);
+                if (i == 0 || i == 1)
+                {
+                    board[i][j].putClientProperty("piece", new Piece(Constants.PLAYER_TWO, gameState[i][j], j, i));
+                }
+                else if (i == 6 || i == 7)
+                {
+                    board[i][j].putClientProperty("piece", new Piece(Constants.PLAYER_ONE, gameState[i][j], j, i));
+                }
+                else
+                {
+                    board[i][j].putClientProperty("piece", new Piece(Constants.EMPTY_SPOT, gameState[i][j], j, i));
+                }
+
                 board[i][j].addActionListener(listener);
 
                 this.add(board[i][j]);
@@ -97,6 +113,23 @@ class BoardGUI extends JPanel
         }
     }
 
+    private boolean isValidSelection()
+    {
+        return selectedButton.getIcon() != null;
+    }
+
+    private void swapPlaces (Piece selectedPiece, Piece destinationPiece)
+    {
+        int xTemp = selectedPiece.getxLocation();
+        int yTemp = selectedPiece.getyLocation();
+
+        selectedPiece.setxLocation(destinationPiece.getxLocation());
+        selectedPiece.setyLocation(destinationPiece.getyLocation());
+
+        destinationPiece.setxLocation(xTemp);
+        destinationPiece.setyLocation(yTemp);
+    }
+
     private class BoardListener implements ActionListener
     {
 
@@ -106,7 +139,46 @@ class BoardGUI extends JPanel
             // Logic to handle movement will go here
             if (e.getSource() instanceof JButton)
             {
-                JButton clickedButton = (JButton)e.getSource();
+                if(selectedButton != null)
+                {
+                    JButton destinationButton = (JButton)e.getSource();
+
+                    ImageIcon test = (ImageIcon)selectedButton.getIcon();
+
+                    destinationButton.setIcon(test);
+
+                    selectedButton.setIcon(null);
+
+                    Piece selectedPiece = (Piece)selectedButton.getClientProperty("piece");
+                    Piece destinationPiece = (Piece)destinationButton.getClientProperty("piece");
+
+                    swapPlaces(selectedPiece, destinationPiece);
+
+                    selectedButton.putClientProperty("piece", destinationPiece);
+                    destinationButton.putClientProperty("piece", selectedPiece);
+
+                    selectedButton = null;
+                }
+                else
+                {
+                    selectedButton = (JButton) e.getSource();
+
+                    if (!isValidSelection())
+                    {
+                        selectedButton = null;
+                        JOptionPane.showMessageDialog(null, "Invalid move");
+                    }
+                    else
+                    {
+                        Piece selectedPiece = (Piece)selectedButton.getClientProperty("piece");
+                        ArrayList<Point> available = game.highlightMoves(board, selectedPiece);
+
+                        for (Point p : available)
+                        {
+                            board[p.y][p.x].setBackground(Color.GREEN);
+                        }
+                    }
+                }
             }
         }
     }
