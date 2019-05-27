@@ -130,6 +130,31 @@ class BoardGUI extends JPanel
         destinationPiece.setyLocation(yTemp);
     }
 
+    private void removeHighlighting()
+    {
+        if (game.getPotentialMoveList() == null)
+        {
+           return;
+        }
+
+        for(Point p : game.getPotentialMoveList())
+        {
+            if (colorOrange(p))
+            {
+                board[p.y][p.x].setBackground(Color.ORANGE);
+            }
+            else
+            {
+                board[p.y][p.x].setBackground(Color.WHITE);
+            }
+        }
+    }
+
+    private boolean colorOrange(Point p)
+    {
+        return (p.y % 2 != 0 && p.x % 2 == 0) || (p.y % 2 == 0 && p.x % 2 != 0);
+    }
+
     private class BoardListener implements ActionListener
     {
 
@@ -143,14 +168,29 @@ class BoardGUI extends JPanel
                 {
                     JButton destinationButton = (JButton)e.getSource();
 
+                    removeHighlighting();
+
+                    Piece selectedPiece = (Piece)selectedButton.getClientProperty("piece");
+                    Piece destinationPiece = (Piece)destinationButton.getClientProperty("piece");
+
+                    if (!game.isValidMove(selectedPiece, destinationPiece))
+                    {
+                        JOptionPane.showMessageDialog(null, Constants.INVALID_MOVE_STRING);
+                        selectedButton = null;
+                        return;
+                    }
+
                     ImageIcon test = (ImageIcon)selectedButton.getIcon();
 
                     destinationButton.setIcon(test);
 
                     selectedButton.setIcon(null);
 
-                    Piece selectedPiece = (Piece)selectedButton.getClientProperty("piece");
-                    Piece destinationPiece = (Piece)destinationButton.getClientProperty("piece");
+                    selectedPiece.incrementMoveCount();
+
+                    game.updateState(selectedPiece, destinationPiece);
+
+                    game.printBoardState();
 
                     swapPlaces(selectedPiece, destinationPiece);
 
@@ -166,14 +206,14 @@ class BoardGUI extends JPanel
                     if (!isValidSelection())
                     {
                         selectedButton = null;
-                        JOptionPane.showMessageDialog(null, "Invalid move");
+                        JOptionPane.showMessageDialog(null, Constants.INVALID_MOVE_STRING);
                     }
                     else
                     {
                         Piece selectedPiece = (Piece)selectedButton.getClientProperty("piece");
-                        ArrayList<Point> available = game.highlightMoves(board, selectedPiece);
+                        game.highlightMoves(board, selectedPiece);
 
-                        for (Point p : available)
+                        for (Point p : game.getPotentialMoveList())
                         {
                             board[p.y][p.x].setBackground(Color.GREEN);
                         }
