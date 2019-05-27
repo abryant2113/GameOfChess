@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class Game
 {
+    private ArrayList<Point> potentialMoveList;
     private char board[][];
 
     public Game()
@@ -40,7 +41,7 @@ public class Game
         board[7][4] = board[0][4] = 'K';
     }
 
-    private void printBoardState()
+    public void printBoardState()
     {
         System.out.println("Current board state:");
 
@@ -59,11 +60,10 @@ public class Game
         return board;
     }
 
-    public ArrayList<Point> highlightMoves(JButton[][] board, Piece selectedPiece)
+    public void highlightMoves(JButton[][] board, Piece selectedPiece)
     {
-        ArrayList<Point> potentialMoveList = new ArrayList<>();
+        setPotentialMoveList(new ArrayList<>());
 
-        int currentPlayer = selectedPiece.getPlayerID();
         int curX, curY;
 
         switch (selectedPiece.getPieceRank())
@@ -75,9 +75,9 @@ public class Game
                     curX = selectedPiece.getxLocation() + Constants.PAWN_HORIZONTAL[i];
                     curY = selectedPiece.getyLocation() + Constants.PAWN_VERTICAL[i];
 
-                    if (inBounds(curX, curY) && spotCheck(currentPlayer, board[curY][curX]))
+                    if (inBounds(curX, curY) && spotCheck(selectedPiece, board[curY][curX]))
                     {
-                        potentialMoveList.add(new Point(curX, curY));
+                        getPotentialMoveList().add(new Point(curX, curY));
                     }
                 }
                 break;
@@ -93,31 +93,84 @@ public class Game
             case 'B':
                 break;
         }
-        return potentialMoveList;
     }
 
     private boolean inBounds(int x, int y)
     {
-        return x > -1 && x < 7 && y > -1 && y < 7;
+        return x > -1 && x < 8 && y > -1 && y < 8;
     }
 
-    private boolean spotCheck(int currentPlayer, JButton potentialMoves)
+    public void updateState(Piece selectedPiece, Piece destinationPiece)
     {
-        return containsEnemyPiece(currentPlayer, potentialMoves) || containsNoPiece(potentialMoves);
+        board[selectedPiece.getyLocation()][selectedPiece.getxLocation()] = destinationPiece.getPieceRank();
+        board[destinationPiece.getyLocation()][destinationPiece.getxLocation()] = selectedPiece.getPieceRank();
+    }
+    private boolean validPawnMove(Piece selectedPiece, JButton potentialMove)
+    {
+        Piece destinationPiece = (Piece) potentialMove.getClientProperty("piece");
+
+        if (destinationPiece.getyLocation() == selectedPiece.getyLocation() - 2 && board[destinationPiece.getyLocation()][destinationPiece.getxLocation()] == '-'
+        && board[destinationPiece.getyLocation() + 1][destinationPiece.getxLocation()] == '-' && selectedPiece.getMoveCount() == 0)
+        {
+            return true;
+        }
+
+        if (containsNoPiece(potentialMove) && destinationPiece.getyLocation() == selectedPiece.getyLocation() - 1 &&
+                destinationPiece.getxLocation() == selectedPiece.getxLocation())
+        {
+            return true;
+        }
+        else if(containsEnemyPiece(selectedPiece.getPlayerID(), potentialMove) &&
+                destinationPiece.getyLocation() == selectedPiece.getyLocation() - 1 &&
+                ((selectedPiece.getxLocation() + 1 == destinationPiece.getxLocation()) ||
+                        selectedPiece.getxLocation() - 1 == destinationPiece.getxLocation()))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean spotCheck(Piece selectedPiece, JButton potentialMove)
+    {
+        int currentPlayer = selectedPiece.getPlayerID();
+
+        if (selectedPiece.getPieceRank() == 'P')
+        {
+            return validPawnMove(selectedPiece, potentialMove);
+        }
+
+        return containsEnemyPiece(currentPlayer, potentialMove) || containsNoPiece(potentialMove);
     }
 
     private boolean containsEnemyPiece(int currentPlayer, JButton potentialMove)
     {
         Piece checkPiece = (Piece)potentialMove.getClientProperty("piece");
-
-        return checkPiece.getPlayerID() != currentPlayer;
+        return (checkPiece.getPlayerID() != currentPlayer) && (checkPiece.getPlayerID() != Constants.EMPTY_SPOT);
     }
 
     public boolean containsNoPiece(JButton potentialMove)
     {
         Piece checkPiece = (Piece)potentialMove.getClientProperty("piece");
-
         return checkPiece.getPlayerID() == Constants.EMPTY_SPOT;
     }
 
+    public boolean isValidMove(Piece selectedPiece, Piece destinationPiece)
+    {
+        for (Point p : potentialMoveList)
+        {
+            if (p.x == destinationPiece.getxLocation() && p.y == destinationPiece.getyLocation())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<Point> getPotentialMoveList() {
+        return potentialMoveList;
+    }
+
+    public void setPotentialMoveList(ArrayList<Point> potentialMoveList) {
+        this.potentialMoveList = potentialMoveList;
+    }
 }

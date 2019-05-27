@@ -5,6 +5,7 @@ public class Piece {
     private int playerID;
     private int xLocation;
     private int yLocation;
+    private int moveCount;
     private char pieceRank;
 
     public Piece(int playerID, char pieceRank, int xLocation, int yLocation)
@@ -13,12 +14,13 @@ public class Piece {
         this.pieceRank = pieceRank;
         this.xLocation = xLocation;
         this.yLocation = yLocation;
+        this.moveCount = 0;
     }
 
     public void printPieceData()
     {
         System.out.println("This is Player " + Integer.toString(this.playerID) + "'s  piece with a rank of "
-                + this.pieceRank);
+                + this.pieceRank + " at location [" + this.yLocation + "][" + this.xLocation + "]");
     }
 
     public char getPieceRank()
@@ -58,5 +60,13 @@ public class Piece {
     public void setxLocation(int xLocation)
     {
         this.xLocation = xLocation;
+    }
+
+    public int getMoveCount() {
+        return moveCount;
+    }
+
+    public void incrementMoveCount() {
+        this.moveCount++;
     }
 }
