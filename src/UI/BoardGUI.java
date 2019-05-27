@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 class BoardGUI extends JPanel
 {
@@ -173,7 +172,7 @@ class BoardGUI extends JPanel
                     Piece selectedPiece = (Piece)selectedButton.getClientProperty("piece");
                     Piece destinationPiece = (Piece)destinationButton.getClientProperty("piece");
 
-                    if (!game.isValidMove(selectedPiece, destinationPiece))
+                    if (!game.isValidMove(destinationPiece))
                     {
                         JOptionPane.showMessageDialog(null, Constants.INVALID_MOVE_STRING);
                         selectedButton = null;
@@ -206,7 +205,7 @@ class BoardGUI extends JPanel
                     if (!isValidSelection())
                     {
                         selectedButton = null;
-                        JOptionPane.showMessageDialog(null, Constants.INVALID_MOVE_STRING);
+                        JOptionPane.showMessageDialog(null, Constants.NOTHING_SELECTED_STRING);
                     }
                     else
                     {

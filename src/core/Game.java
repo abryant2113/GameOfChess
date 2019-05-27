@@ -138,7 +138,6 @@ public class Game
         {
             return validPawnMove(selectedPiece, potentialMove);
         }
-
         return containsEnemyPiece(currentPlayer, potentialMove) || containsNoPiece(potentialMove);
     }
 
@@ -154,7 +153,7 @@ public class Game
         return checkPiece.getPlayerID() == Constants.EMPTY_SPOT;
     }
 
-    public boolean isValidMove(Piece selectedPiece, Piece destinationPiece)
+    public boolean isValidMove(Piece destinationPiece)
     {
         for (Point p : potentialMoveList)
         {
@@ -166,11 +165,13 @@ public class Game
         return false;
     }
 
-    public ArrayList<Point> getPotentialMoveList() {
+    public ArrayList<Point> getPotentialMoveList()
+    {
         return potentialMoveList;
     }
 
-    public void setPotentialMoveList(ArrayList<Point> potentialMoveList) {
+    public void setPotentialMoveList(ArrayList<Point> potentialMoveList)
+    {
         this.potentialMoveList = potentialMoveList;
     }
 }
