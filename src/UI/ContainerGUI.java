@@ -3,13 +3,16 @@ package UI;
 import javax.swing.*;
 import java.awt.*;
 import core.Constants;
+import core.Game;
 
 public class ContainerGUI extends JFrame
 {
     private BoardGUI board;
+    private Game game;
 
-    public ContainerGUI()
+    public ContainerGUI(Game game)
     {
+        this.game = game;
         initComponents();
     }
 
@@ -21,7 +24,7 @@ public class ContainerGUI extends JFrame
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        board = new BoardGUI();
+        board = new BoardGUI(game);
 
         this.add(board, BorderLayout.CENTER);
 

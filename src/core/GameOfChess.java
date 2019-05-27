@@ -6,6 +6,7 @@ public class GameOfChess
 {
     public static void main(String [] args)
     {
-        ContainerGUI gameFrame = new ContainerGUI();
+        Game game = new Game();
+        ContainerGUI gameFrame = new ContainerGUI(game);
     }
 }
